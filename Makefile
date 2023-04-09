@@ -6,6 +6,7 @@
 # "make COMPILER=compilador"	--> Compila todos los archivos con el compilador especificado.
 # "make CFLAG='cflags'"		--> Compila todos los archivos con los flags de compilación proporcionados, puede ser mas de uno siempre que se lo encapsule con " ó '.
 # "make run"			--> Ejecuta el programa.
+# "make perf"
 # "make valgrind"		--> Ejecuta los test con valgrind.
 # "make valgrind VFLAG='vflags'"--> Ejecuta los test con valgrind con los flags de valgrind proporcionados, puede ser mas de uno siempre que se lo encapsule con " ó '.
 # "make debug"			--> Ejecuta el programa con gdb.
@@ -41,6 +42,7 @@ endif
 # -I$(INCLUDE_DIR)	Ayuda a encontrar los HEADERS en el directorio INCLUDE_DIR.
 # -DNDEBUG		Para eliminar los mensajes de debug.
 # -O1, -O2, -O3, -Os	Estas flags activan distintos niveles de optimización. -O1 realiza optimizaciones simples, mientras que -O3 realiza optimizaciones más agresivas y puede aumentar significativamente el tiempo de compilación. -Os optimiza para el tamaño del archivo ejecutable.
+# -Ofast
 # -funroll-loops	Esta flag activa la optimización que desenrolla los bucles for. Esto puede mejorar el rendimiento en bucles que se ejecutan muchas veces.
 # -finline-functions	Esta flag indica al compilador que intente alinear las funciones pequeñas en lugar de llamarlas. Esto puede mejorar el rendimiento en funciones que se llaman con frecuencia.
 # -fomit-frame-pointer	Esta flag indica al compilador que omita el puntero de marco en la pila, lo que puede aumentar la velocidad de las llamadas a función, pero también hace que el depurador sea menos útil.
@@ -70,7 +72,7 @@ ifdef LDFLAG
 endif
 
 # Flags especificas de Perf
-PFLAGS = stat
+PFLAGS =
 # Agregar flags si se especifican como argumento
 ifdef PFLAG
 	PFLAGS += $(PFLAG)
