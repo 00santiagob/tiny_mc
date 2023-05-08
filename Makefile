@@ -115,7 +115,14 @@ endif
 HEADERS = $(wildcard $(INCLUDE_DIR)/*.h)
 
 # Lista de fuentes
-SOURCES = $(wildcard $(SRC_DIR)/*.c)
+#SOURCES = $(wildcard $(SRC_DIR)/*.c)
+SRC_ORIGINAL = $(filter-out $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*rng*.c), $(wildcard $(SRC_DIR)/*.c))
+RNG_XOR = $(filter-out $(SRC_DIR)/tiny_mc.c $(SRC_DIR)/tiny_mc_rng_mersenne_twister.c, $(wildcard $(SRC_DIR)/*.c))
+RNG_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c), $(wildcard $(SRC_DIR)/*.c))
+SOURCES = $(SRC_ORIGINAL)
+ifdef SRC
+	SOURCES = $($(SRC))
+endif
 
 # Lista de objetos
 OBJECTS = $(SOURCES:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
