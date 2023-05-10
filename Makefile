@@ -34,30 +34,45 @@ ifdef COMPILER
 endif
 
 # CCFLAGS son los flags/opciones que usaremos para compilar el programa.
-CFLAGS = -I$(INCLUDE_DIR) -Wall -Wextra -Werror -g
+CFLAGS = -I$(INCLUDE_DIR) -Wall -Wextra -Werror -Wundef -Wshadow -fverbose-asm -g
 # Agregar flags si se especifican como argumento
 ifdef CFLAG
 	CFLAGS += $(CFLAG)
 endif
-# -I$(INCLUDE_DIR)	Ayuda a encontrar los HEADERS en el directorio INCLUDE_DIR.
-# -DNDEBUG		Para eliminar los mensajes de debug.
+# -I$(INCLUDE_DIR)		Ayuda a encontrar los HEADERS en el directorio INCLUDE_DIR.
+# -falign-functions		Esta flag indica al compilador que alinee las funciones en la memoria, lo que puede mejorar el rendimiento al aprovechar la caché.
+# -falign-jumps			Esta flag indica al compilador que alinee las etiquetas de salto en la memoria, lo que puede mejorar el rendimiento al aprovechar la caché.
+# -falign-loops			Esta flag indica al compilador que alinee los bucles en la memoria, lo que puede mejorar el rendimiento al aprovechar la caché.
+# -ffast-math			Esta flag habilita las optimizaciones de matemáticas rápidas, como la reasociación de operaciones y la eliminación de comprobaciones de error. Puede ser útil en aplicaciones que realizan cálculos intensivos.
+# -DNDEBUG				Para eliminar los mensajes de debug.
+# -finline-functions	Esta flag indica al compilador que intente alinear las funciones pequeñas en lugar de llamarlas. Esto puede mejorar el rendimiento en funciones que se llaman con frecuencia.
+# -fipa-pta				Esta flag habilita la propagación de análisis de punteros interprocedural, que puede mejorar la precisión de las optimizaciones de punteros.
+# -fipa-profile			Esta flag habilita la optimización interprocedural basada en perfiles, que utiliza información de ejecución para optimizar el código.
+# -fno-strict-aliasing	Esta flag desactiva las optimizaciones que dependen de un estricto control de aliasing. Puede ser útil en aplicaciones que acceden a datos mediante punteros.
+# -fomit-frame-pointer	Esta flag indica al compilador que omita el puntero de marco en la pila, lo que puede aumentar la velocidad de las llamadas a función, pero también hace que el depurador sea menos útil.
+# -fopenmp
+# -fopt-info-vec		(Intel only)
+# -fopt-info-vec-missed	(Intel only)
+# -fprofile-use			Esta flag habilita la optimización basada en perfiles, que utiliza información de ejecución para optimizar el código.
+# -fprofile-generate	Esta flag habilita la generación de perfiles de ejecución, que puede ser útil para identificar cuellos de botella en el código.
+# -freorder-blocks		Esta flag indica al compilador que reordene los bloques básicos del programa para mejorar la localidad de referencia de la caché.
+# -fstrict-aliasing		Esta flag activa un estricto control de aliasing, lo que puede permitir al compilador realizar optimizaciones más agresivas. Puede ser útil en aplicaciones que acceden a datos mediante punteros.
+# -ftree-vectorize
+# -funroll-loops		Esta flag activa la optimización que desenrolla los bucles for. Esto puede mejorar el rendimiento en bucles que se ejecutan muchas veces.
+# -fverbose-asm			Is useful if you're compiling with -S to examine the assembly output - it adds some informative comments.
+# -march=knl
+# -march=native			Esta flag indica al compilador que genere código para la arquitectura del procesador en el que se está compilando. Esto puede mejorar el rendimiento al aprovechar las características específicas del procesador.
+# -march=znver3
+# -march=znver4
+# -mavx2
+# -mavx2-512
+# -mcmodel=medium
+# -mcmodel=large
+# -msse4
 # -O1, -O2, -O3, -Os	Estas flags activan distintos niveles de optimización. -O1 realiza optimizaciones simples, mientras que -O3 realiza optimizaciones más agresivas y puede aumentar significativamente el tiempo de compilación. -Os optimiza para el tamaño del archivo ejecutable.
 # -Ofast
-# -funroll-loops	Esta flag activa la optimización que desenrolla los bucles for. Esto puede mejorar el rendimiento en bucles que se ejecutan muchas veces.
-# -finline-functions	Esta flag indica al compilador que intente alinear las funciones pequeñas en lugar de llamarlas. Esto puede mejorar el rendimiento en funciones que se llaman con frecuencia.
-# -fomit-frame-pointer	Esta flag indica al compilador que omita el puntero de marco en la pila, lo que puede aumentar la velocidad de las llamadas a función, pero también hace que el depurador sea menos útil.
-# -march=native		Esta flag indica al compilador que genere código para la arquitectura del procesador en el que se está compilando. Esto puede mejorar el rendimiento al aprovechar las características específicas del procesador.
-# -ffast-math		Esta flag habilita las optimizaciones de matemáticas rápidas, como la reasociación de operaciones y la eliminación de comprobaciones de error. Puede ser útil en aplicaciones que realizan cálculos intensivos.
-# -fno-strict-aliasing	Esta flag desactiva las optimizaciones que dependen de un estricto control de aliasing. Puede ser útil en aplicaciones que acceden a datos mediante punteros.
-# -fstrict-aliasing	Esta flag activa un estricto control de aliasing, lo que puede permitir al compilador realizar optimizaciones más agresivas. Puede ser útil en aplicaciones que acceden a datos mediante punteros.
-# -falign-functions	Esta flag indica al compilador que alinee las funciones en la memoria, lo que puede mejorar el rendimiento al aprovechar la caché.
-# -falign-loops		Esta flag indica al compilador que alinee los bucles en la memoria, lo que puede mejorar el rendimiento al aprovechar la caché.
-# -falign-jumps		Esta flag indica al compilador que alinee las etiquetas de salto en la memoria, lo que puede mejorar el rendimiento al aprovechar la caché.
-# -fprofile-use		Esta flag habilita la optimización basada en perfiles, que utiliza información de ejecución para optimizar el código.
-# -fprofile-generate	Esta flag habilita la generación de perfiles de ejecución, que puede ser útil para identificar cuellos de botella en el código.
-# -freorder-blocks	Esta flag indica al compilador que reordene los bloques básicos del programa para mejorar la localidad de referencia de la caché.
-# -fipa-pta		Esta flag habilita la propagación de análisis de punteros interprocedural, que puede mejorar la precisión de las optimizaciones de punteros.
-# -fipa-profile		Esta flag habilita la optimización interprocedural basada en perfiles, que utiliza información de ejecución para optimizar el código.
+# -mcmodel=medium
+# -mcmodel=large
 # -std=c89		Para especificar la versión de C de 1989.
 # -std=c99		Para especificar la versión de C de 1999.
 # -std=c11		Para especificar la versión de C de 2011.
