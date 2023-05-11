@@ -1,0 +1,178 @@
+#######################################
+# Analisis SIN Flags de optimización: #
+#######################################
+
+❯ make perf PFLAG='stat -r 32'
+
+gcc -Iinclude -MD -c src/tiny_mc.c -o obj/tiny_mc.o
+gcc -Iinclude -MD -c src/wtime.c -o obj/wtime.o
+gcc -Iinclude -o bin/a.out obj/tiny_mc.o obj/wtime.o -lm
+
+Performance counter stats for './bin/a.out' (32 runs):
+
+            213,21 msec task-clock                #    0,899 CPUs utilized            ( +-  2,01% )
+                89      context-switches          #  378,954 /sec                     ( +- 10,28% )
+                 0      cpu-migrations            #    0,000 /sec                   
+                78      page-faults               #  332,117 /sec                     ( +-  0,28% )
+       742.674.083      cycles                    #    3,162 GHz                      ( +-  2,00% )
+     1.073.309.844      instructions              #    1,31  insn per cycle           ( +-  0,02% )
+       201.675.373      branches                  #  858,715 M/sec                    ( +-  0,02% )
+         1.929.915      branch-misses             #    0,96% of all branches          ( +- 12,15% )
+
+           0,23709 +- 0,00449 seconds time elapsed  ( +-  1,89% )
+
+❯ make perf SRC=LAB1 PFLAG='stat -r 32'
+
+gcc -Iinclude -MD -c src/tiny_mc_lab1.c -o obj/tiny_mc_lab1.o
+gcc -Iinclude -MD -c src/wtime.c -o obj/wtime.o
+gcc -Iinclude -o bin/a.out obj/tiny_mc_lab1.o obj/wtime.o -lm
+
+Performance counter stats for './bin/a.out' (32 runs):
+
+            155,08 msec task-clock                #    0,977 CPUs utilized            ( +-  0,56% )
+                 0      context-switches          #    0,000 /sec                   
+                 0      cpu-migrations            #    0,000 /sec                   
+                79      page-faults               #  499,631 /sec                     ( +-  0,23% )
+       540.856.292      cycles                    #    3,421 GHz                      ( +-  0,56% )
+       835.773.142      instructions              #    1,52  insn per cycle           ( +-  0,02% )
+       157.116.797      branches                  #  993,676 M/sec                    ( +-  0,02% )
+         1.552.284      branch-misses             #    0,99% of all branches          ( +-  3,15% )
+
+          0,158677 +- 0,000908 seconds time elapsed  ( +-  0,57% )
+
+❯ make perf SRC=LAB1_MT PFLAG='stat -r 32'
+
+gcc -Iinclude -MD -c src/mtwister.c -o obj/mtwister.o
+gcc -Iinclude -MD -c src/tiny_mc_lab1_mersenne_twister.c -o obj/tiny_mc_lab1_mersenne_twister.o
+gcc -Iinclude -MD -c src/wtime.c -o obj/wtime.o
+gcc -Iinclude -o bin/a.out obj/mtwister.o obj/tiny_mc_lab1_mersenne_twister.o obj/wtime.o -lm
+
+Performance counter stats for './bin/a.out' (32 runs):
+
+            173,94 msec task-clock                #    0,988 CPUs utilized            ( +-  1,24% )
+                 4      context-switches          #   22,809 /sec                     ( +-149,99% )
+                 1      cpu-migrations            #    5,702 /sec                     ( +- 24,49% )
+                80      page-faults               #  456,189 /sec                     ( +-  0,19% )
+       606.333.544      cycles                    #    3,458 GHz                      ( +-  1,23% )
+       988.287.017      instructions              #    1,62  insn per cycle           ( +-  0,02% )
+        95.840.819      branches                  #  546,519 M/sec                    ( +-  0,03% )
+         1.665.633      branch-misses             #    1,74% of all branches          ( +-  5,51% )
+
+           0,17611 +- 0,00228 seconds time elapsed  ( +-  1,29% )
+
+
+#######################################
+# Analisis CON Flags de optimización: #
+#######################################
+
+❯ make perf SRC=LAB1_MT COMPILER=gcc CFLAG='-O1 -march=native' PFLAG='stat -r 32'
+
+gcc -Iinclude -O1 -march=native -MD -c src/mtwister.c -o obj/mtwister.o
+gcc -Iinclude -O1 -march=native -MD -c src/tiny_mc_lab1_mersenne_twister.c -o obj/tiny_mc_lab1_mersenne_twister.o
+gcc -Iinclude -O1 -march=native -MD -c src/wtime.c -o obj/wtime.o
+gcc -Iinclude -O1 -march=native -o bin/a.out obj/mtwister.o obj/tiny_mc_lab1_mersenne_twister.o obj/wtime.o -lm
+
+Performance counter stats for './bin/a.out' (32 runs):
+
+             92,56 msec task-clock                #    1,070 CPUs utilized            ( +-  1,57% )
+                 8      context-switches          #   93,299 /sec                     ( +- 45,86% )
+                 0      cpu-migrations            #    0,000 /sec                   
+                78      page-faults               #  909,666 /sec                     ( +-  0,18% )
+       322.816.952      cycles                    #    3,765 GHz                      ( +-  1,57% )
+       543.268.547      instructions              #    1,82  insn per cycle           ( +-  0,02% )
+        46.152.792      branches                  #  538,251 M/sec                    ( +-  0,02% )
+         1.546.149      branch-misses             #    3,35% of all branches          ( +-  1,80% )
+
+           0,08651 +- 0,00152 seconds time elapsed  ( +-  1,76% )
+
+❯ make perf SRC=LAB1_MT COMPILER=gcc CFLAG='-O3 -march=native' PFLAG='stat -r 32'
+
+gcc -Iinclude -O3 -march=native -MD -c src/mtwister.c -o obj/mtwister.o
+gcc -Iinclude -O3 -march=native -MD -c src/tiny_mc_lab1_mersenne_twister.c -o obj/tiny_mc_lab1_mersenne_twister.o
+gcc -Iinclude -O3 -march=native -MD -c src/wtime.c -o obj/wtime.o
+gcc -Iinclude -O3 -march=native -o bin/a.out obj/mtwister.o obj/tiny_mc_lab1_mersenne_twister.o obj/wtime.o -lm
+
+Performance counter stats for './bin/a.out' (32 runs):
+
+             71,63 msec task-clock                #    1,005 CPUs utilized            ( +-  0,84% )
+                 1      context-switches          #   14,157 /sec                     ( +- 52,72% )
+                 0      cpu-migrations            #    0,000 /sec                   
+                80      page-faults               #    1,133 K/sec                    ( +-  0,17% )
+       249.321.998      cycles                    #    3,530 GHz                      ( +-  0,79% )
+       433.166.966      instructions              #    1,77  insn per cycle           ( +-  0,01% )
+        41.000.211      branches                  #  580,435 M/sec                    ( +-  0,01% )
+           684.798      branch-misses             #    1,67% of all branches          ( +-  2,41% )
+
+          0,071262 +- 0,000708 seconds time elapsed  ( +-  0,99% )
+
+❯ make perf SRC=LAB1_MT COMPILER=gcc CFLAG='-Ofast -march=native' PFLAG='stat -r 32'
+
+gcc -Iinclude -Ofast -march=native -MD -c src/mtwister.c -o obj/mtwister.o
+gcc -Iinclude -Ofast -march=native -MD -c src/tiny_mc_lab1_mersenne_twister.c -o obj/tiny_mc_lab1_mersenne_twister.o
+gcc -Iinclude -Ofast -march=native -MD -c src/wtime.c -o obj/wtime.o
+gcc -Iinclude -Ofast -march=native -o bin/a.out obj/mtwister.o obj/tiny_mc_lab1_mersenne_twister.o obj/wtime.o -lm
+
+Performance counter stats for './bin/a.out' (32 runs):
+
+             71,32 msec task-clock                #    1,018 CPUs utilized            ( +-  0,75% )
+                 7      context-switches          #  100,741 /sec                     ( +-  6,86% )
+                 1      cpu-migrations            #   14,392 /sec                     ( +- 12,50% )
+                80      page-faults               #    1,151 K/sec                    ( +-  0,19% )
+       248.874.756      cycles                    #    3,582 GHz                      ( +-  0,76% )
+       422.927.214      instructions              #    1,75  insn per cycle           ( +-  0,01% )
+        39.084.513      branches                  #  562,487 M/sec                    ( +-  0,01% )
+           895.856      branch-misses             #    2,29% of all branches          ( +-  1,82% )
+
+          0,070074 +- 0,000586 seconds time elapsed  ( +-  0,84% )
+
+##############################################
+# Compilar CON FLAGs para AutoVectorización: #
+##############################################
+
+❯ make SRC=LAB1_MT COMPILER=gcc CFLAG='-O1 -march=native -ftree-vectorize -fopt-info-vec -fopt-info-vec-missed'
+
+gcc -Iinclude -O1 -march=native -ftree-vectorize -fopt-info-vec -fopt-info-vec-missed -MD -c src/tiny_mc_lab1_mersenne_twister.c -o obj/tiny_mc_lab1_mersenne_twister.o
+
+src/tiny_mc_lab1_mersenne_twister.c:132:32: missed: couldn't vectorize loop
+src/tiny_mc_lab1_mersenne_twister.c:132:32: missed: not vectorized: control flow in loop.
+src/tiny_mc_lab1_mersenne_twister.c:111:32: missed: couldn't vectorize loop
+src/tiny_mc_lab1_mersenne_twister.c:111:32: missed: not vectorized: multiple nested loops.
+src/tiny_mc_lab1_mersenne_twister.c:54:16: missed: couldn't vectorize loop
+src/tiny_mc_lab1_mersenne_twister.c:54:16: missed: not vectorized: control flow in loop.
+src/tiny_mc_lab1_mersenne_twister.c:78:23: missed: couldn't vectorize loop
+src/tiny_mc_lab1_mersenne_twister.c:78:23: missed: not vectorized: number of iterations cannot be computed.
+src/tiny_mc_lab1_mersenne_twister.c:106:28: missed: statement clobbers memory: _1 = time (0B);
+src/tiny_mc_lab1_mersenne_twister.c:106:19: missed: statement clobbers memory: rand = seedRand (_2); [return slot optimization]
+src/tiny_mc_lab1_mersenne_twister.c:108:20: missed: statement clobbers memory: start_37 = wtime ();
+src/tiny_mc_lab1_mersenne_twister.c:51:25: missed: statement clobbers memory: _169 = genRandInt (&rand);
+src/tiny_mc_lab1_mersenne_twister.c:51:20: missed: statement clobbers memory: _173 = logf (_171);
+src/tiny_mc_lab1_mersenne_twister.c:64:30: missed: statement clobbers memory: _136 = sqrtf (_86);
+src/tiny_mc_lab1_mersenne_twister.c:74:26: missed: statement clobbers memory: _91 = genRandInt (&rand);
+src/tiny_mc_lab1_mersenne_twister.c:75:26: missed: statement clobbers memory: _96 = genRandInt (&rand);
+src/tiny_mc_lab1_mersenne_twister.c:87:13: missed: statement clobbers memory: _140 = sqrtf (_117);
+src/tiny_mc_lab1_mersenne_twister.c:88:13: missed: statement clobbers memory: _144 = sqrtf (_117);
+src/tiny_mc_lab1_mersenne_twister.c:51:25: missed: statement clobbers memory: _60 = genRandInt (&rand);
+src/tiny_mc_lab1_mersenne_twister.c:51:20: missed: statement clobbers memory: _63 = logf (_62);
+src/tiny_mc_lab1_mersenne_twister.c:54:17: missed: statement clobbers memory: _66 = genRandInt (&rand);
+src/tiny_mc_lab1_mersenne_twister.c:115:18: missed: statement clobbers memory: end_39 = wtime ();
+src/tiny_mc_lab1_mersenne_twister.c:116:5: missed: statement clobbers memory: __assert_fail ("start <= end", "src/tiny_mc_lab1_mersenne_twister.c", 116, &__PRETTY_FUNCTION__);
+src/tiny_mc_lab1_mersenne_twister.c:122:10: missed: statement clobbers memory: fp_43 = fopen ("dati_mod_1.bin", "wb");
+src/tiny_mc_lab1_mersenne_twister.c:123:5: missed: statement clobbers memory: fwrite (&heat, 4, 101, fp_43);
+src/tiny_mc_lab1_mersenne_twister.c:124:5: missed: statement clobbers memory: fclose (fp_43);
+src/tiny_mc_lab1_mersenne_twister.c:135:16: missed: statement clobbers memory: _148 = sqrt (_9);
+
+
+funroll-loops, -ftree-vectorize, -ffast-math, -funsafe-math-optimizations, -march=native;knl , -O3, -fno-tree-vectorize, -mavx512f, -mavx, -mavx2, -sse, -msse3, -msse4.1, -msse4.2,  -mvzeroupper, -mno-mvzeroupper
+
+
+
+gcc
+
+-Ofast -ftree-vectorize -march=native  -mavx2 -fopt-info-vec -fopt-info-vec-missed -ffast-math -finline-functions -funroll-loops -fguess-branch-probability -funsafe-math-optimizations
+
+-Ofast -ftree-vectorize -funsafe-math-optimizations -msse4.2 -fopt-info-vec -fopt-info-vec-missed -ffast-math -finline-functions -funroll-loops -fguess-branch-probability
+
+
+clang
+
+-Ofast -ftree-vectorize -msse4.2 -funsafe-math-optimizations -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize -ffast-math -finline-functions -funroll-loops
