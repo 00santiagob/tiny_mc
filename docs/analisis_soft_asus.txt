@@ -162,8 +162,8 @@ src/tiny_mc_lab1_mersenne_twister.c:124:5: missed: statement clobbers memory: fc
 src/tiny_mc_lab1_mersenne_twister.c:135:16: missed: statement clobbers memory: _148 = sqrt (_9);
 
 
-funroll-loops, -ftree-vectorize, -ffast-math, -funsafe-math-optimizations, -march=native;knl , -O3, -fno-tree-vectorize, -mavx512f, -mavx, -mavx2, -sse, -msse3, -msse4.1, -msse4.2,  -mvzeroupper, -mno-mvzeroupper
 
+funroll-loops, -ftree-vectorize, -ffast-math, -funsafe-math-optimizations, -march=native;knl , -O3, -fno-tree-vectorize, -mavx512f, -mavx, -mavx2, -sse, -msse3, -msse4.1, -msse4.2,  -mvzeroupper, -mno-mvzeroupper
 
 
 gcc

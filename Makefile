@@ -195,6 +195,7 @@ RNG_XOR = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*twister.c) $(
 RNG_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*lab*.c), $(wildcard $(SRC_DIR)/*.c))
 LAB1 = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*twister.c), $(wildcard $(SRC_DIR)/*.c))
 LAB1_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*rng*.c) $(SRC_DIR)/tiny_mc_lab1.c, $(wildcard $(SRC_DIR)/*.c))
+LAB2_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*rng*.c) $(wildcard $(SRC_DIR)/*lab1*.c), $(wildcard $(SRC_DIR)/*.c))
 SOURCES = $(SRC_ORIGINAL)
 ifdef SRC
 	SOURCES = $($(SRC))
