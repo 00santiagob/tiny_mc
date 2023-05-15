@@ -263,6 +263,7 @@ clean:
 	rm -rf $(BIN_DIR)
 	rm -rf $(SRC_DIR)/*.gch
 	rm -rf *.gdb_history
+	rm -rf *.clang-format
 	rm -rf *.bin
 	rm -rf *.bc
 	rm -rf *.i
