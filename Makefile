@@ -196,6 +196,7 @@ RNG_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(
 LAB1 = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*twister.c), $(wildcard $(SRC_DIR)/*.c))
 LAB1_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*rng*.c) $(SRC_DIR)/tiny_mc_lab1.c, $(wildcard $(SRC_DIR)/*.c))
 LAB2_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*rng*.c) $(wildcard $(SRC_DIR)/*lab1*.c), $(wildcard $(SRC_DIR)/*.c))
+LAB2_MT_ALL_IN_ONE = $(SRC_DIR)/tiny_mc_lab2_mtwister_all_in_one.c $(SRC_DIR)/wtime.c
 SOURCES = $(SRC_ORIGINAL)
 ifdef SRC
 	SOURCES = $($(SRC))
@@ -263,6 +264,10 @@ clean:
 	rm -rf $(SRC_DIR)/*.gch
 	rm -rf *.gdb_history
 	rm -rf *.bin
+	rm -rf *.bc
+	rm -rf *.i
+	rm -rf *.s
+
 
 # Esta regla indica que si ocurre un error en la compilación de algún archivo, se borren los archivos generados y se detenga el proceso.
 .DELETE_ON_ERROR:
