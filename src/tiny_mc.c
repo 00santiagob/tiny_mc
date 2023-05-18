@@ -35,28 +35,39 @@ static void photon(void)
     const float albedo = MU_S / (MU_S + MU_A);
     const float shells_per_mfp = 1e4 / MICRONS_PER_SHELL / (MU_A + MU_S);
 
-    /* launch */
+    /* STEP 1: Launching a photon packet */
+    // Initial position
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
-    float u = 0.0f;
-    float v = 0.0f;
-    float w = 1.0f;
+    // Initial direction of propagation
+    float dir_x = 0.0f;
+    float dir_y = 0.0f;
+    float dir_z = 1.0f;
+    // Initial weight of photon
     float weight = 1.0f;
 
     for (;;) {
+        /* Step 2: Step size selection and photon packet movement */
+        // Distance the photon packet travels between interaction sites
         float t = -logf(rand() / (float)RAND_MAX); /* move */
-        x += t * u;
-        y += t * v;
-        z += t * w;
+        x += t * dir_x;
+        y += t * dir_y;
+        z += t * dir_z;
 
+        /* Step 3: Absorption and scattering */
         unsigned int shell = sqrtf(x * x + y * y + z * z) * shells_per_mfp; /* absorb */
+
         if (shell > SHELLS - 1) {
             shell = SHELLS - 1;
         }
+
         heat[shell] += (1.0f - albedo) * weight;
         heat2[shell] += (1.0f - albedo) * (1.0f - albedo) * weight * weight; /* add up squares */
+        
         weight *= albedo;
+
+        /* Step 4: Photon termination */
 
         /* New direction, rejection method */
         float xi1, xi2;
@@ -65,9 +76,10 @@ static void photon(void)
             xi2 = 2.0f * rand() / (float)RAND_MAX - 1.0f;
             t = xi1 * xi1 + xi2 * xi2;
         } while (1.0f < t);
-        u = 2.0f * t - 1.0f;
-        v = xi1 * sqrtf((1.0f - u * u) / t);
-        w = xi2 * sqrtf((1.0f - u * u) / t);
+
+        dir_x = 2.0f * t - 1.0f;
+        dir_y = xi1 * sqrtf((1.0f - dir_x * dir_x) / t);
+        dir_z = xi2 * sqrtf((1.0f - dir_x * dir_x) / t);
 
         if (weight < 0.001f) { /* roulette */
             if (rand() / (float)RAND_MAX > 0.1f)

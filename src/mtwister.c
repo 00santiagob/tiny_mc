@@ -40,7 +40,7 @@ MTRand seedRand(unsigned long seed) {
 /**
  * Generates a pseudo-randomly generated long.
  */
-unsigned int genRandInt(MTRand* rand) {
+unsigned int genRngMTInt(MTRand* rand) {
 
   unsigned long y;
   static unsigned long mag[2] = {0x0, 0x9908b0df}; /* mag[x] = x * 0x9908b0df for x = 0,1 */

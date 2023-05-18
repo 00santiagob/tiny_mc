@@ -35,30 +35,35 @@ static void photon(void)
     const float albedo = MU_S / (MU_S + MU_A);
     const float shells_per_mfp = 1e4 / MICRONS_PER_SHELL / (MU_A + MU_S);
 
-    /* launch */
+    /* STEP 1: Launching a photon packet */
+    // Initial position
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
-    float u = 0.0f;
-    float v = 0.0f;
-    float w = 1.0f;
+    // Initial direction of propagation
+    float dir_x = 0.0f;
+    float dir_y = 0.0f;
+    float dir_z = 1.0f;
+    // Initial weight of photon
     float weight = 1.0f;
 
     for (;;) {
+        /* Step 2: Step size selection and photon packet movement */
+        // Distance the photon packet travels between interaction sites
         float t = -logf(rand() / (float)RAND_MAX); /* move */
        
-    	/* roulette: Se agrando el valor en la condicional de 0.001 a 0.005 */
+    	/* Roulette */
 		if (weight < 0.005f) {
             if (rand() / (float)RAND_MAX > 0.1f)
                 break;
             weight /= 0.1f;
         }
 	
-		x += t * u;
-        y += t * v;
-        z += t * w;
+		x += t * dir_x;
+        y += t * dir_y;
+        z += t * dir_z;
 
-        /* absorb */
+        /* Step 3: Absorption and scattering */
         unsigned int shell = sqrtf(x * x + y * y + z * z) * shells_per_mfp;
 
         float xi1, xi2;
@@ -73,27 +78,25 @@ static void photon(void)
             xi1 = 2.0f * rand() / (float)RAND_MAX - 1.0f;
             xi2 = 2.0f * rand() / (float)RAND_MAX - 1.0f;
             t = xi1 * xi1 + xi2 * xi2;
-				      
         } while (1.0f < t);   
 			     
 	
         heat[shell] += (1.0f - albedo) * weight;
-        heat2[shell] += (1.0f - albedo) * (1 - albedo) * weight * weight; /* add up squares */
+        heat2[shell] += (1.0f - albedo) * (1.0f - albedo) * weight * weight; /* add up squares */
        
+        weight *= albedo;
        
-        u = 2.0f * t - 1.0f;
-        weight *= albedo; 
-		v = xi1 * sqrtf((1.0f - u * u) / t);
-		w = xi2 * sqrtf((1.0f - u * u) / t);
+        dir_x = 2.0f * t - 1.0f;
+		dir_y = xi1 * sqrtf((1.0f - dir_x * dir_x) / t);
+		dir_z = xi2 * sqrtf((1.0f - dir_x * dir_x) / t);
 
-        /* roulette: se desplazo hacia arriba el siguiente bloque de código */ 
-        /*
-	        if (weight < 0.001f) {
-	            if (rand() / (float)RAND_MAX > 0.1f)
-	                break;
-	            weight /= 0.1f;
-	        }
-        */
+        /* roulette: Se agrando el valor en la condicional de 0.001 a 0.005 */
+        // if (weight < 0.005f) {
+        //     if (genRandInt(&rand) / (float)RAND_MAX > 0.1f) {
+        //         break;
+        //     };
+        //     weight /= 0.1f;
+        // }
        }
 
 }
