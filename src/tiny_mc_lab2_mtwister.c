@@ -38,11 +38,6 @@ char t3[] = "CPU version, adapted for PEAGPGPU by Gustavo Castellano"
 static float heat[SHELLS];
 static float heat2[SHELLS];
 
-typedef struct tagMTRand {
-  unsigned long mt[STATE_VECTOR_LENGTH];
-  int index;
-} MTRand;
-
 /* Photon */
 static void photon(MTRand * restrict rand) {
     // const float albedo = MU_S / (MU_S + MU_A);
@@ -83,7 +78,12 @@ static void photon(MTRand * restrict rand) {
         // };
 
         /* Roulette */
-        weight = (weight < 0.005f) ? (((genRngMTInt(rand) / (float)RAND_MAX) > 0.1f) ? i = N_MAX_FOR : weight / 0.1f) : weight;
+        if (weight < 0.005f) {
+            if (genRngMTInt(rand) / (float)RAND_MAX > 0.1f) {
+                break;
+            };
+            weight /= 0.1f;
+        }
        
         x += t * dir_x;
         // for (int k=0; k < 8 ; ++k) {
@@ -114,7 +114,7 @@ static void photon(MTRand * restrict rand) {
 
         /* roulette: Se agrando el valor en la condicional de 0.001 a 0.005 */
         // if (weight < 0.005f) {
-        //     if (genRandInt(&rand) / (float)RAND_MAX > 0.1f) {
+        //     if (genRngMTInt(&rand) / (float)RAND_MAX > 0.1f) {
         //         break;
         //     };
         //     weight /= 0.1f;

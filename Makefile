@@ -190,13 +190,14 @@ HEADERS = $(wildcard $(INCLUDE_DIR)/*.h)
 
 # Lista de fuentes
 #SOURCES = $(wildcard $(SRC_DIR)/*.c)
-SRC_ORIGINAL = $(filter-out $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*twister.c) $(wildcard $(SRC_DIR)/*rng*.c) $(wildcard $(SRC_DIR)/*lab*.c), $(wildcard $(SRC_DIR)/*.c))
-RNG_XOR = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*twister.c) $(wildcard $(SRC_DIR)/*lab*.c), $(wildcard $(SRC_DIR)/*.c))
-RNG_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*lab*.c), $(wildcard $(SRC_DIR)/*.c))
-LAB1 = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*twister.c), $(wildcard $(SRC_DIR)/*.c))
-LAB1_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*rng*.c) $(SRC_DIR)/tiny_mc_lab1.c, $(wildcard $(SRC_DIR)/*.c))
-LAB2_MT = $(filter-out $(SRC_DIR)/tiny_mc.c $(wildcard $(SRC_DIR)/*xorshift.c) $(wildcard $(SRC_DIR)/*rng*.c) $(wildcard $(SRC_DIR)/*lab1*.c), $(wildcard $(SRC_DIR)/*.c))
-LAB2_MT_ALL_IN_ONE = $(SRC_DIR)/tiny_mc_lab2_mtwister_all_in_one.c $(SRC_DIR)/wtime.c
+SRC_ORIGINAL = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc.c
+RNG_XOR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_rng_xorshift.c $(SRC_DIR)/xorshift.c
+RNG_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_rng_mtwister.c $(SRC_DIR)/mtwister.c
+LAB1 = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab1.c
+LAB1_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab1_mtwister.c $(SRC_DIR)/mtwister.c
+LAB2_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister.c $(SRC_DIR)/mtwister.c
+LAB2_MT_ALL_IN_ONE = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_all_in_one.c
+
 SOURCES = $(SRC_ORIGINAL)
 ifdef SRC
 	SOURCES = $($(SRC))
