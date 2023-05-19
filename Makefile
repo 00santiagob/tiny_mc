@@ -195,8 +195,10 @@ RNG_XOR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_rng_xorshift.c $(SRC_DIR)/xorshi
 RNG_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_rng_mtwister.c $(SRC_DIR)/mtwister.c
 LAB1 = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab1.c
 LAB1_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab1_mtwister.c $(SRC_DIR)/mtwister.c
-LAB2_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister.c $(SRC_DIR)/mtwister.c
+LAB2_XOR128 = $(SRC_DIR)/wtime.c $(SRC_DIR)/xor128.c $(SRC_DIR)/simdxorshift128plus.c
+LAB2_MT_ARR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_arr.c $(SRC_DIR)/mtwister.c
 LAB2_MT_ALL_IN_ONE = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_all_in_one.c
+LAB2_MT_ARR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_arr.c $(SRC_DIR)/mtwister.c
 
 SOURCES = $(SRC_ORIGINAL)
 ifdef SRC
