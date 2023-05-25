@@ -97,10 +97,10 @@ static void photon(void)
 int main(void)
 {
     // heading
-    printf("# %s\n# %s\n# %s\n", t1, t2, t3);
+    printf("\n# %s\n# %s\n# %s\n\n", t1, t2, t3);
     printf("# Scattering = %8.3f/cm\n", MU_S);
     printf("# Absorption = %8.3f/cm\n", MU_A);
-    printf("# Photons    = %8d\n#\n", PHOTONS);
+    printf("# Photons    = %8d\n\n", PHOTONS);
 
     // configure RNG
     srand(SEED);
@@ -122,7 +122,8 @@ int main(void)
     printf("# [microns]\t[W/cm^3]\tError\n");
     float t = 4.0f * M_PI * powf(MICRONS_PER_SHELL, 3.0f) * PHOTONS / 1e12;
     for (unsigned int i = 0; i < SHELLS - 1; ++i) {
-        printf("%6.0f\t%12.5f\t%12.5f\n", i * (float)MICRONS_PER_SHELL,
+        printf("%6.0f\t%12.5f\t%12.5f\n",
+               i * (float)MICRONS_PER_SHELL,
                heat[i] / t / (i * i + i + 1.0 / 3.0),
                sqrt(heat2[i] - heat[i] * heat[i] / PHOTONS) / t / (i * i + i + 1.0f / 3.0f));
     }
