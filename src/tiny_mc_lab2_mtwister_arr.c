@@ -36,6 +36,10 @@ bool areAllFalse(bool array[], int size);
 // global state, heat and heat square in each shell
 static float heat[SHELLS];
 static float heat2[SHELLS];
+static int N_MAX_FOR_i = 0;
+static int N_MIN_FOR_i = 99999;
+static int N_MAX_WHILE_j = 0;
+static int N_MIN_WHILE_j = 99999;
 
 /* Photon */
 static void photon(MTRand * restrict rand) {
@@ -65,6 +69,7 @@ static void photon(MTRand * restrict rand) {
     
     bool flags[8] = {true, true, true, true, true, true, true, true};
     bool stop = false;
+    int i = 0;
     for (;stop == false;) {
     // for (int i = 0; i<N_MAX_FOR; ++i) {
 
@@ -75,7 +80,7 @@ static void photon(MTRand * restrict rand) {
         float t[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
         for (int k=0; k < 8 ; ++k) {
             t[k] = -logf(genRngMTInt(rand) / (float)RAND_MAX)*flags[k];
-         };
+        };
 
         
        
@@ -90,15 +95,17 @@ static void photon(MTRand * restrict rand) {
         //z += t * dir_z;
         //for (int k=0; k < 8 ; ++k) {
              z[k] += t[k] * dir_z[k]*flags[k];
-                                     }
         //};                       
+        };
+
         /* Step 3: Absorption and scattering */
 
         unsigned int shell[8];
+        //unsigned int shell = sqrtf(x * x + y * y + z * z) * shells_per_mfp;
         for (int k=0; k < 8 ; ++k) {
              shell[k] = sqrtf(x[k] * x[k] + y[k] * y[k] + z[k] * z[k]) * shells_per_mfp;
-        //unsigned int shell = sqrtf(x * x + y * y + z * z) * shells_per_mfp;
-        			}
+        };
+
         float xi1[8];
         float xi2[8];
 
@@ -107,9 +114,11 @@ static void photon(MTRand * restrict rand) {
                 shell = SHELLS - 1;
             }
         */
-        for(int k=0; k < 8; ++k){
+
+        for(int k=0; k < 8; ++k) {
             shell[k] = ((SHELLS - 1) * (shell[k] > SHELLS - 1)) + (shell[k] * (shell[k] <= SHELLS - 1));
-                                }
+        };
+
         for(int k=0; k < 8; ++k){
             //variabile = condizione ? valore_se_vero : valore_se_falso;
             heat[shell[k]] = flags[k] ? heat[shell[k]]+(1.0f - albedo) * weight[k] : heat[shell[k]] ;
@@ -117,11 +126,12 @@ static void photon(MTRand * restrict rand) {
              
             //heat[shell[k]] += (1.0f - albedo) * weight ;
             //heat2[shell[k]] += (1.0f - albedo) * (1.0f - albedo) * weight * weight; /* add up squares */
-                                }
+        };
         
         for(int k=0; k<8; ++k){                        
-        weight[k] *= albedo ;
-                              }
+            weight[k] *= albedo;
+        };
+
         /* Step 4: Photon termination */
 
         /* roulette: Se agrando el valor en la condicional de 0.001 a 0.005 */
@@ -135,34 +145,44 @@ static void photon(MTRand * restrict rand) {
 
 
         /* New direction, rejection method */
+        int j = 0;
         for(int k=0; k<8; ++k){
-        do {
-        // for(int j = 0; (j < N_MAX_WHILE) && (1.0f < t); ++j) {
-            
-            xi1[k] = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
-            xi2[k] = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
-            t[k] = xi1[k] * xi1[k]  + xi2[k] * xi2[k] ;
-        } while (1.0f < t[k]);
-                              }
+            do {
+            // for(int j = 0; (j < N_MAX_WHILE) && (1.0f < t); ++j) {
+                
+                xi1[k] = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
+                xi2[k] = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
+                t[k] = xi1[k] * xi1[k]  + xi2[k] * xi2[k] ;
+                ++j;
+            } while (1.0f < t[k]);
+        };
+        N_MAX_WHILE_j = j/8 >= N_MAX_WHILE_j ? j/8 : N_MAX_WHILE_j;
+        N_MIN_WHILE_j = j/8 <= N_MIN_WHILE_j ? j/8 : N_MIN_WHILE_j;
         // };
-        
+
         for(int k=0; k<8; ++k){
-        dir_x[k] = 2.0f * t[k] - 1.0f;
-        dir_y[k] = xi1[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
-        dir_z[k] = xi2[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
-                              }
+            dir_x[k] = 2.0f * t[k] - 1.0f;
+            dir_y[k] = xi1[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
+            dir_z[k] = xi2[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
+        };
+
         /* Roulette */
         for(int k=0; k<8; ++k){
-        if (weight[k] < 0.005f) {
-            if (genRngMTInt(rand) / (float)RAND_MAX > 0.1f) {
-                flags[k] = false;
+            if (weight[k] < 0.005f) {
+                if (genRngMTInt(rand) / (float)RAND_MAX > 0.1f) {
+                    flags[k] = false;
+                };
+                weight[k] /= 0.1f;
             };
-            weight[k] /= 0.1f;
-        }
-                               }
-       stop = areAllFalse(flags, 8);                        
-                               
+        };
+
+        stop = areAllFalse(flags, 8);
+        ++i;
+
     };
+
+    N_MAX_FOR_i = i >= N_MAX_FOR_i ? i : N_MAX_FOR_i;
+    N_MIN_FOR_i = i <= N_MAX_FOR_i ? i : N_MAX_FOR_i;
 }
 
 bool areAllFalse(bool array[], int size) {
@@ -203,6 +223,7 @@ int main(void) {
     fp = fopen("dati_mod_1.bin", "wb");
     fwrite(heat, sizeof(float), len, fp);
     fclose(fp);
+
     printf("# %lf seconds\n", elapsed);
     printf("# %lf K photons per second\n", 1e-3 * PHOTONS / elapsed);
 
@@ -220,6 +241,11 @@ int main(void) {
     }
 
     printf("# extra\t%12.5f\n", heat[SHELLS - 1] / PHOTONS);
+
+    printf("# N_MAX_FOR_i: %d\n", N_MAX_FOR_i);
+    printf("# N_MIN_FOR_i: %d\n", N_MIN_FOR_i);
+    printf("# N_MAX_WHILE_j: %d\n", N_MAX_WHILE_j);
+    printf("# N_MIN_WHILE_j: %d\n", N_MIN_WHILE_j);
 
     return 0;
 }
