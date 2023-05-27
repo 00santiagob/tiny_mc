@@ -49,7 +49,7 @@ static void photon(MTRand *rand)
     float dir_z = 1.0f;
     // Initial weight of photon
     float weight = 1.0f;
-
+    
     for (;;) {
         /* Step 2: Step size selection and photon packet movement */
         // Distance the photon packet travels between interaction sites
