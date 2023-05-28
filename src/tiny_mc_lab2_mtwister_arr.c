@@ -168,7 +168,7 @@ static void photon(MTRand * restrict rand) {
             weight[k] /= 0.1f;
         }
                                }
-       //stop = areAllFalse(flags, 8);                        
+       stop = areAllFalse(flags, 8);                        
                                
     };
 }

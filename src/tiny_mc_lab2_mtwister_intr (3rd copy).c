@@ -68,14 +68,14 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
     
     // Initial direction of propagation
     //float dir_x = 0.0f;
-    //float dir_x[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    __m256 dir_xin = _mm256_set1_ps(0.0f);
+    float dir_x[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    //__m256 dir_xin = _mm256_set1_ps(0.0f);
     //float dir_y = 0.0f;
-    //float dir_y[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    __m256 dir_yin = _mm256_set1_ps(0.0f);
+    float dir_y[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    //__m256 dir_yin = _mm256_set1_ps(0.0f);
     //float dir_z = 1.0f;
-    //float dir_z[8] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-    __m256 dir_zin = _mm256_set1_ps(1.0f);
+    float dir_z[8] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+    //__m256 dir_zin = _mm256_set1_ps(1.0f);
     // Initial weight of photon
     //float weight = 1.0f;
     float weight[8] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
@@ -91,7 +91,7 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
         // Distance the photon packet travels between interaction sites
         //float t = -logf(genRngMTInt(rand) / (float)RAND_MAX);
       
-        float t[8]; 
+        float t[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; 
         
         for (int k=0; k < 8 ; ++k) {
             vect = avx_xorshift128plus(my_key);
@@ -99,18 +99,8 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
             random_n = (int)(((unsigned int)random_n & 0x7FFFFFFF) / ((double)RAND_MAX + 1.0) * (double)RAND_MAX + 0.5);
             t[k] = -logf(random_n / (float)RAND_MAX)*flags[k];
          };
-      //  __m256i t_g = avx_xorshift128plus(my_key);
-      //  __m256 tin = transformVector(t_g);
-       // float y[8];
-      //  _mm256_store_ps(y, tin);
-      //  for(int g = 0; g < 8; ++g){
-      //      printf("tin transform %f\n", y[g]);}
-      //  __m256 r_m = _mm256_set1_ps(RAND_MAX);
-      //  tin = _mm256_div_ps (tin, r_m);
-       //  float e[8];
-       // _mm256_store_ps(y, tin);
-       // for(int g = 0; g < 8; ++g){
-       //     printf("tin diviso RAND MAX %f\n", e[g]);}
+        
+        
         
         __m256 flags_in = _mm256_load_ps(flags);
         
@@ -122,11 +112,11 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
         
         //__m256 zin = _mm256_load_ps(z);
         
-        //__m256 dir_xin = _mm256_load_ps(dir_x);
+        __m256 dir_xin = _mm256_load_ps(dir_x);
         
-        //__m256 dir_yin = _mm256_load_ps(dir_y);
+        __m256 dir_yin = _mm256_load_ps(dir_y);
         
-        //__m256 dir_zin = _mm256_load_ps(dir_z);
+        __m256 dir_zin = _mm256_load_ps(dir_z);
         
            dir_xin = _mm256_mul_ps(dir_xin, flags_in);
            xin = _mm256_fmadd_ps(dir_xin, tin, xin);
@@ -236,10 +226,7 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
 
 
         /* New direction, rejection method */
-       // int count = 0;
-       
-       _mm256_store_ps(t, tin);
-         
+       // int count = 0;  
         for(int k=0; k<8; ++k){ 
         //printf("Inizio a contare\n");
         //count=0;
@@ -275,20 +262,11 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
         
         
         
-        //for(int k=0; k<8; ++k){
-        //dir_x[k] = 2.0f * t[k] - 1.0f;
-        //dir_y[k] = xi1[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
-        //dir_z[k] = xi2[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
-        //                      }
-        
-        tin = _mm256_load_ps(t);
-        __m256 xin1 = _mm256_load_ps(xi1);
-        __m256 xin2 = _mm256_load_ps(xi2); 
-        dir_xin = _mm256_add_ps(_mm256_mul_ps(_mm256_set1_ps(2.0f), tin),_mm256_set1_ps(-1.0f));
-        
-        __m256 sqt = _mm256_sqrt_ps(_mm256_div_ps(_mm256_sub_ps(_mm256_set1_ps(1.0f), _mm256_mul_ps(dir_xin, dir_xin)), tin));
-        dir_yin = _mm256_mul_ps(xin1, sqt);          
-        dir_zin = _mm256_mul_ps(xin2, sqt);   
+        for(int k=0; k<8; ++k){
+        dir_x[k] = 2.0f * t[k] - 1.0f;
+        dir_y[k] = xi1[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
+        dir_z[k] = xi2[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
+                              }
                               
                               
         /* Roulette */
@@ -335,20 +313,10 @@ __m256 raiz3(__m256 x, __m256 y, __m256 z) {
 }
 
 __m256 transformVector(__m256i x) {
-    float ji[8];
-    _mm256_store_ps(ji, _mm256_castsi256_ps(x));
-    for(int i = 0; i < 8; ++i){
-        printf("RNG %f\n", ji[i]);
-    }
-    
-    __m256 maxVal1 = _mm256_set1_ps(RAND_MAX+1.0f);
-    __m256 maxVal2 = _mm256_set1_ps(RAND_MAX+0.5f);
-    __m256i unsignedX = _mm256_abs_epi32(x);
-    __m256 floatX = _mm256_castsi256_ps(unsignedX);
-    __m256  ts = _mm256_set1_ps(0x7FFFFFFF);
-    __m256 scaledX = _mm256_mul_ps(floatX, ts);
-    __m256 normalized = _mm256_div_ps(scaledX, _mm256_mul_ps(maxVal1, maxVal2));
-    return normalized;
+    __m256i maxVal = _mm256_set1_epi32(RAND_MAX);
+    __m256 floatX = _mm256_cvtepi32_ps(x);
+    __m256 normalized = _mm256_div_ps(floatX, _mm256_cvtepi32_ps(maxVal));
+    return _mm256_mul_ps(normalized, _mm256_cvtepi32_ps(maxVal));
 }
 
 /* Main matter */

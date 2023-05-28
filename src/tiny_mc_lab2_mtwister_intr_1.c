@@ -195,6 +195,7 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
              __m256i t_g = avx_xorshift128plus(my_key);
 
              transformVector(t_g, &t);
+             
 	     __mm256 xi1_new = __mm256_add_ps(b, _mm256_mul_ps(a,t))       
              
             //xi1[k] = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
