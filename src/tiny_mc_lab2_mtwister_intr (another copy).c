@@ -225,16 +225,10 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
 
 
         /* New direction, rejection method */
-       // int count = 0;  
+    
         for(int k=0; k<8; ++k){ 
-        //printf("Inizio a contare\n");
-        //count=0;
-       for(int i = 0;i < 6;i++) {
-         
-        
-        //do {
-        //for(int i=0;i<3;++i){
-         // count+=1;
+        do {
+          
                                             // && (1.0f < t[k])
        //for(int j = 0; (j < N_MAX_WHILE) ; ++j) {
             //iterazioni+=1;
@@ -247,26 +241,18 @@ static void photon(avx_xorshift128plus_key_t * restrict my_key) {
             random_n = (int)(((unsigned int)random_n & 0x7FFFFFFF) / ((double)RAND_MAX + 1.0) * (double)RAND_MAX + 0.5);
             xi2[k] = 2.0f * random_n / (float)RAND_MAX - 1.0f;
             t[k] = xi1[k] * xi1[k]  + xi2[k] * xi2[k] ;
-          if ((1.0f > t[k])==true) {break;}
-          }
-          //  }  while (1.0f < t[k]);
-      //                        if ((1.0f < t[k])==true) {break;}
-      
-       //printf("%d\n", count);                        
-       }
-      
-                              
+            }  while (1.0f < t[k]);
+                              }
        // count_w+= iterazioni/8;
-        
         
         
         for(int k=0; k<8; ++k){
         dir_x[k] = 2.0f * t[k] - 1.0f;
         dir_y[k] = xi1[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
         dir_z[k] = xi2[k] * sqrtf((1.0f - dir_x[k] * dir_x[k]) / t[k]);
+        
+        
                               }
-                              
-                              
         /* Roulette */
         for(int k=0; k<8; ++k){
         if (weight[k] < 0.005f) {
