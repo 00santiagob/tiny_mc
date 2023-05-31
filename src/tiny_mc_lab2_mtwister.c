@@ -47,48 +47,27 @@ static void photon(MTRand * restrict rand) {
 
     // Initial position
     float x = 0.0f;
-    // float x[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     float y = 0.0f;
-    // float y[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     float z = 0.0f;
-    // float z[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     
     // Initial direction of propagation
     float dir_x = 0.0f;
-    // float dir_x[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     float dir_y = 0.0f;
-    // float dir_y[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     float dir_z = 1.0f;
-    // float dir_z[8] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+
     // Initial weight of photon
     float weight = 1.0f;
-    // float weight[8] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 
 
     for (;;) {
-    // for (int i = 0; i<N_MAX_FOR; ++i) {
+    // for (int i = 0; i < N_MAX_FOR; ++i) {
 
         /* Step 2: Step size selection and photon packet movement */
 
         // Distance the photon packet travels between interaction sites
         float t = -logf(genRngMTInt(rand) / (float)RAND_MAX);
-        // float t[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-        // for (int k=0; k < 8 ; ++k) {
-        //    t[k] = -logf(genRngMTInt(rand) / (float)RAND_MAX);
-        // };
-
-        /* Roulette */
-        if (weight < 0.005f) {
-            if (genRngMTInt(rand) / (float)RAND_MAX > 0.1f) {
-                break;
-            };
-            weight /= 0.1f;
-        }
        
         x += t * dir_x;
-        // for (int k=0; k < 8 ; ++k) {
-        //     x[k] += t[k] * dir_x[k];
-        // };
         y += t * dir_y;
         z += t * dir_z;
 
@@ -113,12 +92,12 @@ static void photon(MTRand * restrict rand) {
         /* Step 4: Photon termination */
 
         /* roulette: Se agrando el valor en la condicional de 0.001 a 0.005 */
-        // if (weight < 0.005f) {
-        //     if (genRngMTInt(&rand) / (float)RAND_MAX > 0.1f) {
-        //         break;
-        //     };
-        //     weight /= 0.1f;
-        // }
+        if (weight < 0.005f) {
+            if (genRngMTInt(rand) / (float)RAND_MAX > 0.1f) {
+                break;
+            };
+            weight /= 0.1f;
+        }
         // weight = (weight < 0.005f) ? (((genRngMTInt(rand) / (float)RAND_MAX) > 0.1f) ? i = N_MAX_FOR : weight / 0.1f) : weight;
 
 
@@ -133,7 +112,7 @@ static void photon(MTRand * restrict rand) {
 
         dir_x = 2.0f * t - 1.0f;
         dir_y = xi1 * sqrtf((1.0f - dir_x * dir_x) / t);
-        dir_z = xi1 * sqrtf((1.0f - dir_x * dir_x) / t);
+        dir_z = xi2 * sqrtf((1.0f - dir_x * dir_x) / t);
     };
 }
 

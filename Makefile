@@ -29,10 +29,13 @@ INCLUDE_DIR = include
 
 # CC es la lista de compiladores que vamos a usar. Por ejemplo gcc clang icc
 CC = gcc
+CC_LIST = gcc clang
 # Sobrescribir CC si se especifica como argumento
 ifdef COMPILER
 	CC = $(COMPILER)
 endif
+
+
 
 # CCFLAGS son los flags/opciones que usaremos para compilar el programa.
 CFLAGS = -I$(INCLUDE_DIR) -Wall -Wextra -Werror -Wundef -g
@@ -250,18 +253,20 @@ HEADERS = $(wildcard $(INCLUDE_DIR)/*.h)
 #SOURCES = $(wildcard $(SRC_DIR)/*.c)
 SRC_ORIGINAL = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc.c
 
-RNG_XOR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_rng_xorshift.c $(SRC_DIR)/xorshift.c
-RNG_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_rng_mtwister.c $(SRC_DIR)/mtwister.c
+RNG_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_mtwister.c $(SRC_DIR)/mtwister.c
 
 LAB1 = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab1.c
 LAB1_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab1_mtwister.c $(SRC_DIR)/mtwister.c
+LAB1_XS = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab1_xoshiro.c
 
 LAB2_MT = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister.c $(SRC_DIR)/mtwister.c
-LAB2_MT_ALL_IN_ONE = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_all_in_one.c $(SRC_DIR)/mtwister.c
+LAB2_XS = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_xoshiro.c
 LAB2_MT_ARR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_arr.c $(SRC_DIR)/mtwister.c
+LAB2_XS_ARR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_xoshiro_arr.c
 LAB2_MT_INTR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_intr.c $(SRC_DIR)/mtwister.c
-
+LAB2_XS_INTR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_xoshiro_intr.c
 LAB2_XOR128 = $(SRC_DIR)/wtime.c $(SRC_DIR)/xor128.c $(SRC_DIR)/simdxorshift128plus.c
+
 
 SOURCES = $(SRC_ORIGINAL)
 ifdef SRC
@@ -330,6 +335,7 @@ clean:
 	rm -rf $(SRC_DIR)/*.gch
 	rm -rf *.gdb_history
 	rm -rf *.clang-format
+	rm -rf perf.*
 	rm -rf *.bin
 	rm -rf *.bc
 	rm -rf *.i
