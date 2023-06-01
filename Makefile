@@ -199,6 +199,7 @@ LAB2_XOR128 = $(SRC_DIR)/wtime.c $(SRC_DIR)/xor128.c $(SRC_DIR)/simdxorshift128p
 LAB2_MT_ARR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_arr.c $(SRC_DIR)/mtwister.c
 LAB2_MT_ALL_IN_ONE = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_all_in_one.c
 LAB2_MT_INTR = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab2_mtwister_intr.c $(SRC_DIR)/simdxorshift128plus.c $(SRC_DIR)/mtwister.c
+LAB3_MT_OMP = $(SRC_DIR)/wtime.c $(SRC_DIR)/tiny_mc_lab3_mtwister_omp.c $(SRC_DIR)/mtwister.c
 
 SOURCES = $(SRC_ORIGINAL)
 ifdef SRC

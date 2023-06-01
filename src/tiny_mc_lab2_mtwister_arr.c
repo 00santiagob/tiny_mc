@@ -69,9 +69,9 @@ static void photon(MTRand * restrict rand) {
     float weight[8] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
     
     bool flags[8] = {true, true, true, true, true, true, true, true};
-//bool stop = false;
+bool stop = false;
   //  for (;stop == false;) {
-    for (int i = 0; i<N_MAX_FOR; ++i) {
+    for (int i = 0; i<N_MAX_FOR && stop==false; ++i) {
   //      count_f+=1;
         /* Step 2: Step size selection and photon packet movement */
 
@@ -100,6 +100,7 @@ static void photon(MTRand * restrict rand) {
         /* Step 3: Absorption and scattering */
 
         unsigned int shell[8];
+        
         for (int k=0; k < 8 ; ++k) {
              shell[k] = sqrtf(x[k] * x[k] + y[k] * y[k] + z[k] * z[k]) * shells_per_mfp;
         //unsigned int shell = sqrtf(x * x + y * y + z * z) * shells_per_mfp;
