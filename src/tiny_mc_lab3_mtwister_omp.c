@@ -34,6 +34,7 @@ static float heat2[SHELLS];
  ***/
 
 static void photon(MTRand *rand)
+//static void photon()
 {
     const float albedo = MU_S / (MU_S + MU_A);
     const float shells_per_mfp = 1e4 / MICRONS_PER_SHELL / (MU_A + MU_S);
@@ -49,21 +50,20 @@ static void photon(MTRand *rand)
     float dir_z = 1.0f;
     // Initial weight of photon
     float weight = 1.0f;
-    
-    
-    for (int i=0;i<220;++i) {
+    bool flag = true;
+    int ncycles = 220;
+ 
+ // #pragma omp parallel for firstprivate(x, y, z, dir_x, dir_y, dir_z, weight, flag, rand, ncycles) reduction(+:heat)
+ //   #pragma omp parallel shared(heat, heat2)
+    for (int i = 0; i < ncycles; i++) {
+        //printf("tid i : %d %d \n", omp_get_thread_num(), i);
         /* Step 2: Step size selection and photon packet movement */
         // Distance the photon packet travels between interaction sites
         float t = -logf(genRngMTInt(rand) / (float)RAND_MAX); /* move */
-       
-        /* Roulette */
-		if (weight < 0.005f) { /* roulette */ 
-            if (genRngMTInt(rand) / (float)RAND_MAX > 0.1f)
-                break;
-            weight /= 0.1f;
-        }
+       // float t = -logf(10 / (float)RAND_MAX); /* move */
+        
 	
-		x += t * dir_x;
+        x += t * dir_x;
         y += t * dir_y;
         z += t * dir_z;
 
@@ -81,6 +81,8 @@ static void photon(MTRand *rand)
         do {
             xi1 = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
             xi2 = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
+            //xi1 = 2.0f * 11 / (float)RAND_MAX - 1.0f;
+            //xi2 = 2.0f * 12 / (float)RAND_MAX - 1.0f;
             t = xi1 * xi1 + xi2 * xi2;
 				      
         } while (1.0f < t);   
@@ -95,13 +97,16 @@ static void photon(MTRand *rand)
 		dir_y = xi1 * sqrtf((1.0f - dir_x * dir_x) / t);
 		dir_z = xi2 * sqrtf((1.0f - dir_x * dir_x) / t);
 
-        /* roulette: Se agrando el valor en la condicional de 0.001 a 0.005 */
-        // if (weight < 0.005f) {
-        //     if (genRandInt(&rand) / (float)RAND_MAX > 0.1f) {
-        //         break;
-        //     };
-        //     weight /= 0.1f;
-        // }
+        /* Roulette */
+		if (weight < 0.005f) { /* roulette */ 
+            if (genRngMTInt(rand) / (float)RAND_MAX > 0.1f)
+              //if (13 / (float)RAND_MAX > 0.1f)
+                flag = false;
+            weight /= 0.1f;
+        }
+        
+        if (flag == false) {ncycles = 0;}
+        
 	}
 }
 
@@ -124,10 +129,11 @@ int main(void)
     // start timer
     double start = wtime();
     
-    // simulation
-    #pragma omp parallel for
+    // simulation 
+    #pragma omp parallel for firstprivate(rand)
     for (unsigned int i = 0; i < PHOTONS; ++i) {
-        photon(&rand);
+       photon(&rand);
+       //photon();
     }
     // stop timer
     double end = wtime();
@@ -147,6 +153,7 @@ int main(void)
     printf("# Radius\tHeat\n");
     printf("# [microns]\t[W/cm^3]\tError\n");
     float t = 4.0f * M_PI * powf(MICRONS_PER_SHELL, 3.0f) * PHOTONS / 1e12;
+    //#pragma omp parallel for
     for (unsigned int i = 0; i < SHELLS - 1; ++i) {
         printf("%6.0f\t%12.5f\t%12.5f\n", i * (float)MICRONS_PER_SHELL,
                heat[i] / t / (i * i + i + 1.0 / 3.0),
