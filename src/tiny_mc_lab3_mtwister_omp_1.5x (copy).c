@@ -27,18 +27,15 @@ char t3[] = "CPU version, adapted for PEAGPGPU by Gustavo Castellano"
 // global state, heat and heat square in each shell
 static float heat[SHELLS];
 static float heat2[SHELLS];
-//MTRand rng;
-
 
 
 /***
  * Photon
  ***/
 
-static void photon(MTRand *rng)
+static void photon(MTRand *rand)
 //static void photon()
 {
-
     const float albedo = MU_S / (MU_S + MU_A);
     const float shells_per_mfp = 1e4 / MICRONS_PER_SHELL / (MU_A + MU_S);
 
@@ -62,7 +59,7 @@ static void photon(MTRand *rng)
         //printf("tid i : %d %d \n", omp_get_thread_num(), i);
         /* Step 2: Step size selection and photon packet movement */
         // Distance the photon packet travels between interaction sites
-        float t = -logf(genRngMTInt(rng) / (float)RAND_MAX); /* move */
+        float t = -logf(genRngMTInt(rand) / (float)RAND_MAX); /* move */
        // float t = -logf(10 / (float)RAND_MAX); /* move */
         
 	
@@ -82,8 +79,8 @@ static void photon(MTRand *rng)
         /* New direction, rejection method */
         /* float xi1, xi2; // La declaración de las variables se movio hacia arriba*/
         do {
-            xi1 = 2.0f * genRngMTInt(rng) / (float)RAND_MAX - 1.0f;
-            xi2 = 2.0f * genRngMTInt(rng) / (float)RAND_MAX - 1.0f;
+            xi1 = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
+            xi2 = 2.0f * genRngMTInt(rand) / (float)RAND_MAX - 1.0f;
             //xi1 = 2.0f * 11 / (float)RAND_MAX - 1.0f;
             //xi2 = 2.0f * 12 / (float)RAND_MAX - 1.0f;
             t = xi1 * xi1 + xi2 * xi2;
@@ -102,7 +99,7 @@ static void photon(MTRand *rng)
 
         /* Roulette */
 		if (weight < 0.005f) { /* roulette */ 
-            if (genRngMTInt(rng) / (float)RAND_MAX > 0.1f)
+            if (genRngMTInt(rand) / (float)RAND_MAX > 0.1f)
               //if (13 / (float)RAND_MAX > 0.1f)
                 flag = false;
             weight /= 0.1f;
@@ -127,25 +124,16 @@ int main(void)
     printf("# Photons    = %8d\n#\n", PHOTONS);
 
     // configure RNG
-    
+    MTRand rand = seedRand(SEED);
 
     // start timer
     double start = wtime();
     
-   
-
-   
-    MTRand rng;
-    #pragma omp parallel default(none) \
-    firstprivate(rng) \
-    reduction(+:heat,heat2)
-    {
-    rng = seedRand(SEED);
-    #pragma omp for
+    // simulation 
+    #pragma omp parallel for firstprivate(rand)
     for (unsigned int i = 0; i < PHOTONS; ++i) {
-      // photon(&rand);
-       photon(&rng);
-    }
+       photon(&rand);
+       //photon();
     }
     // stop timer
     double end = wtime();
