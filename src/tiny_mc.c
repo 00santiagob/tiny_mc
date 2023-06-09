@@ -114,7 +114,11 @@ int main(void)
     double end = wtime();
     assert(start <= end);
     double elapsed = end - start;
-
+    int len = (sizeof(heat)) / sizeof(heat[0]); 
+    FILE *fp;
+    fp = fopen("dati_mod_1.bin", "wb");
+    fwrite(heat, sizeof(float), len, fp);
+    fclose(fp);
     printf("# %lf seconds\n", elapsed);
     printf("# %lf K photons per second\n", 1e-3 * PHOTONS / elapsed);
 

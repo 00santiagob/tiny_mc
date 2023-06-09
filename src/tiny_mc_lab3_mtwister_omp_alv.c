@@ -25,17 +25,20 @@ char t3[] = "CPU version, adapted for PEAGPGPU by Gustavo Castellano"
 
 
 // global state, heat and heat square in each shell
-//static float heats[SHELLS*2];
-//static float heat2[SHELLS];
+static float heat[SHELLS];
+static float heat2[SHELLS];
+//MTRand rng;
 
-unsigned int lcg_seed = 1;
-unsigned int lcg_rand();
+
+
 /***
  * Photon
  ***/
 
-static void photon(float heats[SHELLS*2], MTRand *rng)
+static void photon(MTRand *rng)
+//static void photon()
 {
+
     const float albedo = MU_S / (MU_S + MU_A);
     const float shells_per_mfp = 1e4 / MICRONS_PER_SHELL / (MU_A + MU_S);
 
@@ -50,20 +53,20 @@ static void photon(float heats[SHELLS*2], MTRand *rng)
     float dir_z = 1.0f;
     // Initial weight of photon
     float weight = 1.0f;
-    
-    for (;;) {
+    bool flag = true;
+    int ncycles = 220;
+ 
+ // #pragma omp parallel for firstprivate(x, y, z, dir_x, dir_y, dir_z, weight, flag, rand, ncycles) reduction(+:heat)
+ //   #pragma omp parallel shared(heat, heat2)
+    for (int i = 0; i < ncycles; i++) {
+        //printf("tid i : %d %d \n", omp_get_thread_num(), i);
         /* Step 2: Step size selection and photon packet movement */
         // Distance the photon packet travels between interaction sites
         float t = -logf(genRngMTInt(rng) / (float)RAND_MAX); /* move */
-       
-        /* Roulette */
-		if (weight < 0.005f) { /* roulette */ 
-            if (genRngMTInt(rng) / (float)RAND_MAX > 0.1f)
-                break;
-            weight /= 0.1f;
-        }
+       // float t = -logf(10 / (float)RAND_MAX); /* move */
+        
 	
-		x += t * dir_x;
+        x += t * dir_x;
         y += t * dir_y;
         z += t * dir_z;
 
@@ -81,13 +84,15 @@ static void photon(float heats[SHELLS*2], MTRand *rng)
         do {
             xi1 = 2.0f * genRngMTInt(rng) / (float)RAND_MAX - 1.0f;
             xi2 = 2.0f * genRngMTInt(rng) / (float)RAND_MAX - 1.0f;
+            //xi1 = 2.0f * 11 / (float)RAND_MAX - 1.0f;
+            //xi2 = 2.0f * 12 / (float)RAND_MAX - 1.0f;
             t = xi1 * xi1 + xi2 * xi2;
 				      
         } while (1.0f < t);   
 			     
 	
-        heats[shell] += (1.0f - albedo) * weight;
-        heats[shell*2] += (1.0f - albedo) * (1 - albedo) * weight * weight; /* add up squares */
+        heat[shell] += (1.0f - albedo) * weight;
+        heat2[shell] += (1.0f - albedo) * (1 - albedo) * weight * weight; /* add up squares */
        
        
         dir_x = 2.0f * t - 1.0f;
@@ -95,20 +100,19 @@ static void photon(float heats[SHELLS*2], MTRand *rng)
 		dir_y = xi1 * sqrtf((1.0f - dir_x * dir_x) / t);
 		dir_z = xi2 * sqrtf((1.0f - dir_x * dir_x) / t);
 
-        /* roulette: Se agrando el valor en la condicional de 0.001 a 0.005 */
-        // if (weight < 0.005f) {
-        //     if (genRandInt(&rand) / (float)RAND_MAX > 0.1f) {
-        //         break;
-        //     };
-        //     weight /= 0.1f;
-        // }
+        /* Roulette */
+		if (weight < 0.005f) { /* roulette */ 
+            if (genRngMTInt(rng) / (float)RAND_MAX > 0.1f)
+              //if (13 / (float)RAND_MAX > 0.1f)
+                flag = false;
+            weight /= 0.1f;
+        }
+        
+        if (flag == false) {ncycles = 0;}
+        
 	}
 }
 
-unsigned int lcg_rand() {
-    lcg_seed = 1664525 * lcg_seed + 1013904223;
-    return lcg_seed;
-}
 
 /***
  * Main matter
@@ -123,47 +127,36 @@ int main(void)
     printf("# Photons    = %8d\n#\n", PHOTONS);
 
     // configure RNG
-  //  MTRand rand = seedRand(SEED);
-    MTRand rng;
-
-
-      unsigned int i = 0;
-      static float heats[SHELLS*2];
-
     
+
     // start timer
     double start = wtime();
     
-    // simulation
-   #pragma omp parallel firstprivate(i, rng) num_threads(1)
-{
-    rng = seedRand(lcg_rand());
    
-    
-    
-   #pragma omp for reduction(+:heats)
-    for (i = 0; i < PHOTONS ; ++i) {
-        photon(heats, &rng);
+
+   
+    MTRand rng;
+    #pragma omp parallel default(none) \
+    firstprivate(rng) \
+    reduction(+:heat,heat2)
+    {
+    rng = seedRand(SEED);
+    #pragma omp for
+    for (unsigned int i = 0; i < PHOTONS; ++i) {
+      // photon(&rand);
+       photon(&rng);
     }
-    
-    
-   // #pragma omp parallel for reduction(+ : heats)
-   // for(u_int32_t j = 0; j < 2 * SHELLS; j++){
-     //   heats[j]+=heats_t[j];
-    //}  
-
-
-}
+    }
     // stop timer
     double end = wtime();
     assert(start <= end);
     double elapsed = end - start;
 
     /*  */
-    int len = (sizeof(heats)/2) / sizeof(heats[0]); 
+    int len = sizeof(heat) / sizeof(heat[0]); 
     FILE *fp;
     fp = fopen("dati_mod_1.bin", "wb");
-    fwrite(heats, sizeof(float), len, fp);
+    fwrite(heat, sizeof(float), len, fp);
     fclose(fp);
 
     printf("# %lf seconds\n", elapsed);
@@ -172,12 +165,13 @@ int main(void)
     printf("# Radius\tHeat\n");
     printf("# [microns]\t[W/cm^3]\tError\n");
     float t = 4.0f * M_PI * powf(MICRONS_PER_SHELL, 3.0f) * PHOTONS / 1e12;
-    for (i = 0; i < SHELLS - 1; ++i) {
+    //#pragma omp parallel for
+    for (unsigned int i = 0; i < SHELLS - 1; ++i) {
         printf("%6.0f\t%12.5f\t%12.5f\n", i * (float)MICRONS_PER_SHELL,
-               heats[i] / t / (i * i + i + 1.0 / 3.0),
-               sqrt(heats[i*2] - heats[i] * heats[i] / PHOTONS) / t / (i * i + i + 1.0f / 3.0f));
+               heat[i] / t / (i * i + i + 1.0 / 3.0),
+               sqrt(heat2[i] - heat[i] * heat[i] / PHOTONS) / t / (i * i + i + 1.0f / 3.0f));
     }
-    printf("# extra\t%12.5f\n", heats[SHELLS - 1] / PHOTONS);
+    printf("# extra\t%12.5f\n", heat[SHELLS - 1] / PHOTONS);
 
     return 0;
 }

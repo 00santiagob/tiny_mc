@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include <omp.h>
 
+
 char t1[] = "Tiny Monte Carlo by Scott Prahl (http://omlc.ogi.edu)";
 char t2[] = "1 W Point Source Heating in Infinite Isotropic Scattering Medium";
 char t3[] = "CPU version, adapted for PEAGPGPU by Gustavo Castellano"
@@ -25,11 +26,12 @@ char t3[] = "CPU version, adapted for PEAGPGPU by Gustavo Castellano"
 
 
 // global state, heat and heat square in each shell
-//static float heats[SHELLS*2];
+//static float heat[SHELLS];
+  //static float heats[SHELLS*2];
 //static float heat2[SHELLS];
+//MTRand rng;
+//static float heats[SHELLS*2];
 
-unsigned int lcg_seed = 1;
-unsigned int lcg_rand();
 /***
  * Photon
  ***/
@@ -87,7 +89,7 @@ static void photon(float heats[SHELLS*2], MTRand *rng)
 			     
 	
         heats[shell] += (1.0f - albedo) * weight;
-        heats[shell*2] += (1.0f - albedo) * (1 - albedo) * weight * weight; /* add up squares */
+        heats[2*shell] += (1.0f - albedo) * (1 - albedo) * weight * weight; /* add up squares */
        
        
         dir_x = 2.0f * t - 1.0f;
@@ -105,10 +107,6 @@ static void photon(float heats[SHELLS*2], MTRand *rng)
 	}
 }
 
-unsigned int lcg_rand() {
-    lcg_seed = 1664525 * lcg_seed + 1013904223;
-    return lcg_seed;
-}
 
 /***
  * Main matter
@@ -123,37 +121,24 @@ int main(void)
     printf("# Photons    = %8d\n#\n", PHOTONS);
 
     // configure RNG
-  //  MTRand rand = seedRand(SEED);
-    MTRand rng;
+    //MTRand rand;// = seedRand(SEED);
 
-
-      unsigned int i = 0;
-      static float heats[SHELLS*2];
-
-    
     // start timer
     double start = wtime();
-    
+  
     // simulation
-   #pragma omp parallel firstprivate(i, rng) num_threads(1)
-{
-    rng = seedRand(lcg_rand());
-   
+    unsigned int i = 0;
+      static float heats[SHELLS*2];
+    MTRand rng;
+  #pragma omp parallel private(i, rng) num_threads(1)
+    {
+    rng = seedRand(SEED);// * (omp_get_thread_num()+1));
     
-    
-   #pragma omp for reduction(+:heats)
-    for (i = 0; i < PHOTONS ; ++i) {
+    #pragma omp for reduction(+:heats[:SHELLS])
+    for (i = 0; i < PHOTONS; ++i) {
         photon(heats, &rng);
+   				}
     }
-    
-    
-   // #pragma omp parallel for reduction(+ : heats)
-   // for(u_int32_t j = 0; j < 2 * SHELLS; j++){
-     //   heats[j]+=heats_t[j];
-    //}  
-
-
-}
     // stop timer
     double end = wtime();
     assert(start <= end);
@@ -175,7 +160,7 @@ int main(void)
     for (i = 0; i < SHELLS - 1; ++i) {
         printf("%6.0f\t%12.5f\t%12.5f\n", i * (float)MICRONS_PER_SHELL,
                heats[i] / t / (i * i + i + 1.0 / 3.0),
-               sqrt(heats[i*2] - heats[i] * heats[i] / PHOTONS) / t / (i * i + i + 1.0f / 3.0f));
+               sqrt(heats[2*i] - heats[i] * heats[i] / PHOTONS) / t / (i * i + i + 1.0f / 3.0f));
     }
     printf("# extra\t%12.5f\n", heats[SHELLS - 1] / PHOTONS);
 
