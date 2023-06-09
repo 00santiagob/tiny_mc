@@ -136,12 +136,12 @@ int main(void)
     double start = wtime();
     
     // simulation
-   #pragma omp parallel private(rng) num_threads(8)
+   #pragma omp parallel private(rng) 
 {
-    //lcg_seed = omp_get_thread_num();
+    lcg_seed = omp_get_thread_num();
     
-    //rng = seedRand(lcg_rand());
-   rng = seedRand(rand());
+    rng = seedRand(lcg_rand());
+   
     
     
    #pragma omp for reduction(+:heats)
