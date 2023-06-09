@@ -63,7 +63,7 @@ static void photon(float heats[SHELLS*2], MTRand *rng)
             weight /= 0.1f;
         }
 	
-		x += t * dir_x;
+	x += t * dir_x;
         y += t * dir_y;
         z += t * dir_z;
 
@@ -78,16 +78,17 @@ static void photon(float heats[SHELLS*2], MTRand *rng)
 
         /* New direction, rejection method */
         /* float xi1, xi2; // La declaración de las variables se movio hacia arriba*/
+       // for(int p = 0; p < 2; p++){
         do {
             xi1 = 2.0f * genRngMTInt(rng) / (float)RAND_MAX - 1.0f;
             xi2 = 2.0f * genRngMTInt(rng) / (float)RAND_MAX - 1.0f;
             t = xi1 * xi1 + xi2 * xi2;
-				      
-        } while (1.0f < t);   
+	 		  
+				  }while (1.0f < t);   
 			     
 	
         heats[shell] += (1.0f - albedo) * weight;
-        heats[shell*2] += (1.0f - albedo) * (1 - albedo) * weight * weight; /* add up squares */
+        heats[shell+SHELLS-1] += (1.0f - albedo) * (1 - albedo) * weight * weight; /* add up squares */
        
        
         dir_x = 2.0f * t - 1.0f;
@@ -127,7 +128,7 @@ int main(void)
     MTRand rng;
 
 
-      unsigned int i = 0;
+    //  unsigned int i = 0;
       static float heats[SHELLS*2];
 
     
@@ -135,14 +136,16 @@ int main(void)
     double start = wtime();
     
     // simulation
-   #pragma omp parallel firstprivate(i, rng) num_threads(1)
+   #pragma omp parallel private(rng) num_threads(8)
 {
-    rng = seedRand(lcg_rand());
-   
+    //lcg_seed = omp_get_thread_num();
+    
+    //rng = seedRand(lcg_rand());
+   rng = seedRand(rand());
     
     
    #pragma omp for reduction(+:heats)
-    for (i = 0; i < PHOTONS ; ++i) {
+    for (unsigned int i = 0; i < PHOTONS ; ++i) {
         photon(heats, &rng);
     }
     
@@ -156,7 +159,7 @@ int main(void)
 }
     // stop timer
     double end = wtime();
-    assert(start <= end);
+    assert(start <= end); 
     double elapsed = end - start;
 
     /*  */
@@ -172,10 +175,10 @@ int main(void)
     printf("# Radius\tHeat\n");
     printf("# [microns]\t[W/cm^3]\tError\n");
     float t = 4.0f * M_PI * powf(MICRONS_PER_SHELL, 3.0f) * PHOTONS / 1e12;
-    for (i = 0; i < SHELLS - 1; ++i) {
+    for (unsigned int i = 0; i < SHELLS - 1; ++i) {
         printf("%6.0f\t%12.5f\t%12.5f\n", i * (float)MICRONS_PER_SHELL,
                heats[i] / t / (i * i + i + 1.0 / 3.0),
-               sqrt(heats[i*2] - heats[i] * heats[i] / PHOTONS) / t / (i * i + i + 1.0f / 3.0f));
+               sqrt(heats[i+SHELLS-1] - heats[i] * heats[i] / PHOTONS) / t / (i * i + i + 1.0f / 3.0f));
     }
     printf("# extra\t%12.5f\n", heats[SHELLS - 1] / PHOTONS);
 
