@@ -81,14 +81,14 @@ uint32_t next32(void) {
 void jump32(void) {
     static const uint32_t JUMP32[] = { 0x180ec6d3, 0x3cfd0aba, 0xd5a61266, 0xf0c9392c, 0xa9582618, 0xe03fc9aa, 0x39abdc45, 0x29b1661c };
 
-    uint64_t s0 = 0;
-    uint64_t s1 = 0;
-    uint64_t s2 = 0;
-    uint64_t s3 = 0;
-    uint64_t s4 = 0;
-    uint64_t s5 = 0;
-    uint64_t s6 = 0;
-    uint64_t s7 = 0;
+    uint32_t s0 = 0;
+    uint32_t s1 = 0;
+    uint32_t s2 = 0;
+    uint32_t s3 = 0;
+    uint32_t s4 = 0;
+    uint32_t s5 = 0;
+    uint32_t s6 = 0;
+    uint32_t s7 = 0;
 
     for(uint32_t i = 0; i < sizeof JUMP32 / sizeof *JUMP32; i++) {
         for(uint32_t b = 0; b < 32; b++) {
@@ -196,7 +196,7 @@ static void photon() {
         /* Step 2: Step size selection and photon packet movement */
 
         // Distance the photon packet travels between interaction sites
-        float t = -logf(0xFFFF/(float)MAX32);
+        float t = -logf(next32()/(float)MAX32);
        
         x += t * dir_x;
         y += t * dir_y;
@@ -226,7 +226,7 @@ static void photon() {
 
         /* roulette: Se agrando el valor en la condicional de 0.001 a 0.005 */
         if (weight < 0.005f) {
-            if (0xFFFF/(float)MAX32 > 0.1f) {
+            if (next32()/(float)MAX32 > 0.1f) {
                 break;
             };
             weight /= 0.1f;
@@ -237,8 +237,8 @@ static void photon() {
         /* New direction, rejection method */
         do {
         // for(int j = 0; (j < N_MAX_WHILE) && (1.0f < t); ++j) {
-            xi1 = 2.0f * 0xFFFF/(float)MAX32 - 1.0f;
-            xi2 = 2.0f * 0xFFFF/(float)MAX32 - 1.0f;
+            xi1 = 2.0f * next32()/(float)MAX32 - 1.0f;
+            xi2 = 2.0f * next32()/(float)MAX32 - 1.0f;
             t = xi1 * xi1 + xi2 * xi2;
         } while (1.0f < t);
         // };
@@ -258,14 +258,16 @@ int main(void) {
     printf("# Photons    = %8d\n#\n", PHOTONS);
 
     // configure RNG
-    // s32[0] = (uint32_t)SEED;
-    // s32[4] = (uint32_t)SEED;
-    // s32[1] = (uint32_t)SEED;
-    // s32[5] = (uint32_t)SEED;
-    // s32[2] = (uint32_t)SEED;
-    // s32[6] = (uint32_t)SEED;
-    // s32[3] = (uint32_t)SEED;
-    // s32[7] = (uint32_t)SEED;
+    s32[0] = (uint32_t)SEED;
+    s32[4] = (uint32_t)SEED;
+    s32[1] = (uint32_t)SEED;
+    s32[5] = (uint32_t)SEED;
+    s32[2] = (uint32_t)SEED;
+    s32[6] = (uint32_t)SEED;
+    s32[3] = (uint32_t)SEED;
+    s32[7] = (uint32_t)SEED;
+
+    jump32();
 
     // start timer
     double start = wtime();

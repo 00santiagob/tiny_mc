@@ -100,8 +100,8 @@ static void photon(MTRand * restrict rand) {
 
     // for (;stop == false;) {
     // for (int i = 0; i < N_MAX_FOR; ++i) {
-    // for (;photons_lives(flags, K);) {
-    for (int i = 0; (i < N_MAX_FOR) && photons_lives(flags, K); ++i) {
+    for (;photons_lives(flags, K);) {
+    // for (int i = 0; (i < N_MAX_FOR) && photons_lives(flags, K); ++i) {
 
         // Distance the photon packet travels between interaction sites
         float t[K]; // = { [0 ... K-1] * 0.0f };
